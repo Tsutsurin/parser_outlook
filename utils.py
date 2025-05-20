@@ -44,8 +44,8 @@ class ExcelHandler:
             self.workbook = Workbook()
             self.worksheet = self.workbook.active
             self.worksheet.title = 'Темы писем'
-            self.worksheet.append(['№', 'Слово 1', 'INC-номер', 'Текст в кавычках', 'Дата регистрации (DD.MM.YYYY)',
-                                   'Дата регистрации (текст)', 'Дата получения письма'])
+            self.worksheet.append(['№', 'Уровень угрозы', 'INC-номер', 'Тема', 'Дата регистрации',
+                                   'Время инцидента', 'Дата получения письма'])
 
     def add_data_to_excel(self, data):
         self.worksheet.insert_rows(2)
@@ -98,14 +98,18 @@ def parse_email_data(message):
 def get_parameters_from_file(config_file='config.txt'):
     params = {}
     try:
-        with open(config_file, 'r', encoding='utf-8') as f:
+        # Получаем путь к директории, где находится исполняемый файл или скрипт
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        config_path = os.path.join(base_dir, config_file)
+        
+        with open(config_path, 'r', encoding='utf-8') as f:
             for line in f:
                 line = line.strip()
                 if '=' in line:
                     key, value = line.split('=', 1)
                     params[key.strip()] = value.strip()
     except FileNotFoundError:
-        print(f'❌ Файл конфигурации \'{config_file}\' не найден.  Используйте config.txt для настройки.')
+        print(f'❌ Файл конфигурации \'{config_path}\' не найден. Используйте config.txt для настройки.')
         return None
     except Exception as e:
         print(f'❌ Ошибка при чтении файла конфигурации: {e}')
