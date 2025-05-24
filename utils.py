@@ -1,6 +1,7 @@
 import win32com.client
 from openpyxl import Workbook, load_workbook
 import os
+import sys
 import re
 from datetime import datetime, timedelta
 
@@ -98,8 +99,11 @@ def parse_email_data(message):
 def get_parameters_from_file(config_file='config.txt'):
     params = {}
     try:
-        # Получаем путь к директории, где находится исполняемый файл или скрипт
-        base_dir = os.path.dirname(os.path.abspath(__file__))
+        if getattr(sys, 'frozen', False):  # Если запущен как .exe
+            base_dir = os.path.dirname(sys.executable)
+        else:  # Если запущен как .py
+            base_dir = os.path.dirname(os.path.abspath(__file__))
+        
         config_path = os.path.join(base_dir, config_file)
         
         with open(config_path, 'r', encoding='utf-8') as f:
@@ -109,9 +113,9 @@ def get_parameters_from_file(config_file='config.txt'):
                     key, value = line.split('=', 1)
                     params[key.strip()] = value.strip()
     except FileNotFoundError:
-        print(f'❌ Файл конфигурации \'{config_path}\' не найден. Используйте config.txt для настройки.')
+        print(f'Файл конфигурации \'{config_path}\' не найден. Положите config.txt в папку: {base_dir}')
         return None
     except Exception as e:
-        print(f'❌ Ошибка при чтении файла конфигурации: {e}')
+        print(f'Ошибка при чтении файла конфигурации: {e}')
         return None
     return params
